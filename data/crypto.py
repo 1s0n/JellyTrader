@@ -1,24 +1,14 @@
 import asyncio
 import json
 import time
-from dataclasses import dataclass
-from typing import List
+from core.types import Level, BookSnapshot
 
 import websockets
 
 
 ws_url = "wss://stream.binance.com:9443/stream?streams={streamname}@depth"
 
-@dataclass
-class Level:
-    price: float
-    volume: float
 
-@dataclass
-class BookSnapshot:
-    timestamp: float
-    bids: List[Level]
-    asks: List[Level]
 
 
 class CryptoStream:

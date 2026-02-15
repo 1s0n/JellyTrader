@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Iterable, List, Tuple, Optional
 
 from PyQt6 import QtWidgets
@@ -60,7 +58,6 @@ class CandlestickItem(pg.GraphicsObject):
     def boundingRect(self) -> QRectF:
         return QRectF(self.picture.boundingRect())
 
-
 class CandlestickChartWidget(QtWidgets.QWidget):
     """
     Drop-in QWidget candlestick chart.
@@ -109,21 +106,29 @@ class CandlestickChartWidget(QtWidgets.QWidget):
         self._data.clear()
         self._candles.setData(self._data)
 
-class MainWindow(QMainWindow):
+
+class ChartViewPage(QWidget):
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+
+        l = QGridLayout()
+
+        self.chart = CandlestickChartWidget()
+        l.addWidget(QLabel("Chart view"), 0, 0)
+        l.addWidget(self.chart, 1, 0)
+        self.setLayout(l)
+
+
+
+class _MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
         self.setWindowTitle("Widgets App")
 
-        l = QGridLayout()
+        self.widget = ChartViewPage()
 
-        self.chart = CandlestickChartWidget()
-        l.addWidget(QLabel("OHLC"), 0, 0)
-        l.addWidget(self.chart, 1, 0)
-
-        widget = QWidget()
-        widget.setLayout(l)
-        self.setCentralWidget(widget)
+        self.setCentralWidget(self.widget)
 
 # --- demo usage ---
 if __name__ == "__main__":
@@ -131,7 +136,7 @@ if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
 
-    win = MainWindow()
+    win = _MainWindow()
 
     # win.setCentralWidget(chart)
 
@@ -142,7 +147,7 @@ if __name__ == "__main__":
         (3, 103, 110, 102, 112),
         (4, 110, 108, 107, 113),
     ]
-    win.chart.set_ohlc(demo)
+    win.widget.chart.set_ohlc(demo)
 
     win.resize(900, 500)
     win.show()
