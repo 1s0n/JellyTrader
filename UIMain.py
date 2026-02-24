@@ -2,20 +2,31 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBo
 import sys
 from ui.ChartView import ChartViewPage
 from ui.StartPage import StartPage
+import threading
+from core.engine import Engine
 
 class Main(QMainWindow):
-    def __init__(self):
+    def __init__(self, engine: Engine):
         super().__init__()
         tabs = QTabWidget()
 
         p1 = StartPage()
 
-        p2 = ChartViewPage()
+        self.chart = ChartViewPage()
+        engine.assign_chart_callback(self.chart.update_graph)
 
         tabs.addTab(p1, "Start")
-        tabs.addTab(p2, "Chart")
+        tabs.addTab(self.chart, "Chart")
         self.setCentralWidget(tabs)
 
-app = QApplication(sys.argv)
-w = Main(); w.resize(1000, 600); w.show()
-sys.exit(app.exec())
+
+#
+# if __name__ == "__main__":
+#
+#     app = QApplication(sys.argv)
+#     # w = Main()
+#
+#     w.resize(1000, 600)
+#
+#     w.show()
+#     sys.exit(app.exec())

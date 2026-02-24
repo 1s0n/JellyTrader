@@ -9,8 +9,6 @@ import websockets
 ws_url = "wss://stream.binance.com:9443/stream?streams={streamname}@depth"
 
 
-
-
 class CryptoStream:
     def __init__(self, symbol: str, depth: int = 20, debug: bool = False):
         self.symbol = symbol

@@ -1,11 +1,17 @@
+import collections
+import queue
 from typing import Iterable, List, Tuple, Optional
 
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QPointF, QRectF
-from PyQt6.QtGui import QPicture, QPainter
-
+from PyQt6.QtGui import QPicture, QPainter, QFont
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
 import pyqtgraph as pg
 from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QGridLayout, QWidget, QLabel
+
+from core.types import BookSnapshot, CandleSnapshot
 
 OHLC = Tuple[float, float, float, float, float]  # (t, open, close, low, high)
 
@@ -108,17 +114,56 @@ class CandlestickChartWidget(QtWidgets.QWidget):
 
 
 class ChartViewPage(QWidget):
-    def __init__(self, parent: Optional[QWidget] = None):
+    def __init__(self, parent: Optional[QWidget] = None, l_callback = None, s_callback = None):
         super().__init__(parent)
 
-        l = QGridLayout()
+        l = QVBoxLayout(self)
+
+        title = QLabel("Chart view")
+        title_font = QFont()
+        title_font.setPointSize(20)
+        title_font.setBold(True)
+        title.setFont(title_font)
+        title.setAlignment(Qt.AlignmentFlag.AlignLeft)
+
+        longBTN = QPushButton("Long")
+        longBTN.setStyleSheet("""
+        QPushButton {
+            background-color: #2e8b57;
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+            padding: 10px 16px;
+        }
+        """)
+        shortBTN = QPushButton("Short")
+
+
 
         self.chart = CandlestickChartWidget()
-        l.addWidget(QLabel("Chart view"), 0, 0)
-        l.addWidget(self.chart, 1, 0)
+        l.addWidget(title)
+        l.addWidget(self.chart)
+
+        button_row = QHBoxLayout()
+        button_row.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        button_row.addWidget(longBTN)
+        button_row.addSpacing(10)
+        button_row.addWidget(shortBTN)
+
+
+
+        l.addLayout(button_row)
+
+        l.addStretch()
         self.setLayout(l)
 
+        self.data_queue = queue.Queue()
 
+    def update_graph(self, candle: CandleSnapshot):
+        print("UPDATED")
+        _candle = (candle.timestamp, candle.open, candle.close, candle.low, candle.high) # (t, open, close, low, high)
+
+        self.data_queue.put(_candle)
 
 class _MainWindow(QMainWindow):
     def __init__(self):
@@ -147,6 +192,7 @@ if __name__ == "__main__":
         (3, 103, 110, 102, 112),
         (4, 110, 108, 107, 113),
     ]
+    demo = []
     win.widget.chart.set_ohlc(demo)
 
     win.resize(900, 500)
